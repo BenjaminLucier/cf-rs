@@ -1,0 +1,31 @@
+name: Bug report
+description: Something in a cf-rs crate doesn't work as documented
+labels: [bug]
+body:
+  - type: dropdown
+    id: crate
+    attributes:
+      label: Crate
+      options: [cf-images]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Crate version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: rustc
+    attributes:
+      label: rustc version and OS
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+      description: A minimal reproduction helps. Never paste API tokens or signing keys.
+    validations:
+      required: true

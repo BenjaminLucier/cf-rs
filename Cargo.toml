@@ -1,0 +1,36 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+rust-version = "1.85"
+repository = "https://github.com/BenjaminLucier/cf-rs"
+authors = ["Benjamin Lucier <benjaminlucier@gmail.com>"]
+
+[workspace.dependencies]
+# TLS is chosen by each crate's features. Proxies from HTTP(S)_PROXY are
+# honored without `system-proxy`; `charset` is unneeded since bodies are
+# decoded as JSON or kept as bytes.
+reqwest = { version = "0.13.5", default-features = false, features = ["json", "multipart", "stream", "http2"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+thiserror = "2.0.21"
+secrecy = { version = "0.10.3", features = ["serde"] }
+url = "2.5.8"
+bytes = "1.12.1"
+futures-core = "0.3.34"
+futures-util = { version = "0.3.34", default-features = false, features = ["std"] }
+hmac = "0.13.0"
+sha2 = "0.11.0"
+hex = "0.4.3"
+tracing = { version = "0.1.44", default-features = false, features = ["std", "attributes"] }
+
+# dev-dependencies
+tokio = { version = "1.54.0", features = ["macros", "rt-multi-thread", "time", "fs"] }
+wiremock = "0.6.5"
+anyhow = "1.0.104"
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(docsrs)"] }

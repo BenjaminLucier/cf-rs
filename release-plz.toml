@@ -1,0 +1,11 @@
+[workspace]
+git_tag_name = "{{ package }}-v{{ version }}"
+git_release_name = "{{ package }} v{{ version }}"
+changelog_update = true
+semver_check = true
+# How long to wait for a published crate to appear in the crates.io index.
+publish_timeout = "10m"
+
+[[package]]
+name = "cf-images"
+changelog_path = "crates/cf-images/CHANGELOG.md"
