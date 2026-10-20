@@ -1,0 +1,14 @@
+{
+  "id": "083eb7b2-5392-4565-b69e-aff66acddd00",
+  "filename": "cat.png",
+  "creator": "user-1",
+  "meta": { "owner": "user-1", "nested": { "n": 1 } },
+  "requireSignedURLs": false,
+  "uploaded": "2024-05-01T12:34:56.789Z",
+  "variants": [
+    "https://imagedelivery.net/ZWd9g1K7eljCn_KDTu_MWA/083eb7b2-5392-4565-b69e-aff66acddd00/public",
+    "https://imagedelivery.net/ZWd9g1K7eljCn_KDTu_MWA/083eb7b2-5392-4565-b69e-aff66acddd00/thumbnail"
+  ],
+  "a_field_added_later": "ignored",
+  "another": [1, 2, 3]
+}

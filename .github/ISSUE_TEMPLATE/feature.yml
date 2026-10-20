@@ -1,0 +1,16 @@
+name: Feature request
+description: Propose a new API or behaviour
+labels: [enhancement]
+body:
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What are you trying to do, and what is missing today?
+    validations:
+      required: true
+  - type: textarea
+    id: api
+    attributes:
+      label: Proposed API or Cloudflare endpoint
+      description: Link the Cloudflare API docs if this wraps an endpoint.

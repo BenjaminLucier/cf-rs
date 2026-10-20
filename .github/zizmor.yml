@@ -1,0 +1,6 @@
+rules:
+  # Version comments next to SHA pins are the convention here.
+  unpinned-uses:
+    config:
+      policies:
+        "*": hash-pin
