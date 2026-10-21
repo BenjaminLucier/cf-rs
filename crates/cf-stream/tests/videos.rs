@@ -268,36 +268,31 @@ fn uids(videos: &[Video]) -> Vec<&str> {
         .collect()
 }
 
+// The live API treats `before` as exclusive and `after` as inclusive (see the
+// `list_date_bounds` live test); these mocks behave the same way.
+
 #[tokio::test]
-async fn list_all_pages_by_created_and_dedupes_boundaries() {
+async fn list_all_newest_first_pages_by_exclusive_before() {
     let (server, client) = setup().await;
     let (t1, t2, t3) = (
-        "2024-01-01T00:00:01.000Z",
-        "2024-01-01T00:00:02.000Z",
-        "2024-01-01T00:00:03.000Z",
+        "2024-01-01T00:00:01.000001Z",
+        "2024-01-01T00:00:02.000002Z",
+        "2024-01-01T00:00:03.000003Z",
     );
     mock("GET", "")
         .and(query_param_is_missing("before"))
         .respond_with(envelope_with(
             json!([v("a", t3), v("b", t2)]),
-            json!({"range": 2}),
-        ))
-        .expect(1)
-        .mount(&server)
-        .await;
-    // The boundary is inclusive here: `b` comes back and must not repeat.
-    mock("GET", "")
-        .and(query_param("before", t2))
-        .respond_with(envelope_with(
-            json!([v("b", t2), v("c", t1)]),
             json!({"range": 1}),
         ))
         .expect(1)
         .mount(&server)
         .await;
+    // `before` is exclusive, so `b` doesn't come back. The full timestamp
+    // (with microseconds) is passed through unchanged.
     mock("GET", "")
-        .and(query_param("before", t1))
-        .respond_with(envelope_with(json!([v("c", t1)]), json!({})))
+        .and(query_param("before", t2))
+        .respond_with(envelope_with(json!([v("c", t1)]), json!({"range": 0})))
         .expect(1)
         .mount(&server)
         .await;
@@ -305,6 +300,84 @@ async fn list_all_pages_by_created_and_dedupes_boundaries() {
     let videos: Vec<Video> = client
         .videos()
         .list()
+        .limit(2)
+        .into_stream()
+        .try_collect()
+        .await
+        .unwrap();
+    assert_eq!(uids(&videos), ["a", "b", "c"]);
+}
+
+#[tokio::test]
+async fn list_all_oldest_first_steps_past_inclusive_after() {
+    let (server, client) = setup().await;
+    let (t1, t2, t3) = (
+        "2024-01-01T00:00:01.000001Z",
+        "2024-01-01T00:00:02.000002Z",
+        "2024-01-01T00:00:03.000003Z",
+    );
+    mock("GET", "")
+        .and(query_param_is_missing("after"))
+        .and(query_param("asc", "true"))
+        .respond_with(envelope_with(json!([v("a", t1)]), json!({"range": 2})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    // `after` is inclusive, so the next page starts 1µs past `a`. With
+    // `limit(1)` an inclusive bound would return `a` forever.
+    mock("GET", "")
+        .and(query_param("after", "2024-01-01T00:00:01.000002Z"))
+        .respond_with(envelope_with(json!([v("b", t2)]), json!({"range": 1})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    mock("GET", "")
+        .and(query_param("after", "2024-01-01T00:00:02.000003Z"))
+        .respond_with(envelope_with(json!([v("c", t3)]), json!({"range": 0})))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let videos: Vec<Video> = client
+        .videos()
+        .list()
+        .asc(true)
+        .limit(1)
+        .into_stream()
+        .try_collect()
+        .await
+        .unwrap();
+    assert_eq!(uids(&videos), ["a", "b", "c"]);
+}
+
+#[tokio::test]
+async fn list_all_oldest_first_dedupes_when_time_unparseable() {
+    // If `created` can't be parsed, the inclusive bound is reused and the
+    // repeated boundary video is dropped.
+    let (server, client) = setup().await;
+    mock("GET", "")
+        .and(query_param_is_missing("after"))
+        .respond_with(envelope_with(
+            json!([v("a", "t1"), v("b", "t2")]),
+            json!({"range": 1}),
+        ))
+        .expect(1)
+        .mount(&server)
+        .await;
+    mock("GET", "")
+        .and(query_param("after", "t2"))
+        .respond_with(envelope_with(
+            json!([v("b", "t2"), v("c", "t3")]),
+            json!({"range": 0}),
+        ))
+        .expect(1)
+        .mount(&server)
+        .await;
+
+    let videos: Vec<Video> = client
+        .videos()
+        .list()
+        .asc(true)
         .limit(2)
         .into_stream()
         .try_collect()
@@ -350,7 +423,8 @@ async fn list_all_stops_on_short_page_without_range() {
 #[tokio::test]
 async fn list_all_errors_instead_of_looping_on_identical_timestamps() {
     let (server, client) = setup().await;
-    let t = "2024-01-01T00:00:00Z";
+    // An unparseable time, so the stream can't step past it (see above).
+    let t = "same-time";
     mock("GET", "")
         .respond_with(envelope_with(
             json!([v("a", t), v("b", t)]),
@@ -359,7 +433,9 @@ async fn list_all_errors_instead_of_looping_on_identical_timestamps() {
         .expect(2)
         .mount(&server)
         .await;
-    let mut stream = std::pin::pin!(client.videos().list().limit(2).into_stream());
+    // Only possible oldest first with an unparseable time, where the
+    // inclusive `after` keeps returning the same videos.
+    let mut stream = std::pin::pin!(client.videos().list().asc(true).limit(2).into_stream());
     let mut seen = Vec::new();
     let err = loop {
         match stream.try_next().await {
@@ -384,7 +460,7 @@ async fn list_all_ascending_uses_after() {
         .mount(&server)
         .await;
     mock("GET", "")
-        .and(query_param("after", "2024-01-01T00:00:00Z"))
+        .and(query_param("after", "2024-01-01T00:00:00.000001Z"))
         .and(query_param_is_missing("before"))
         .respond_with(success(json!([])))
         .expect(1)

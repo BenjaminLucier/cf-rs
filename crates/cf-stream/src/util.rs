@@ -67,6 +67,79 @@ fn civil_from_days(z: i64) -> (i64, u32, u32) {
     (if m <= 2 { y + 1 } else { y }, m, d)
 }
 
+/// The RFC 3339 UTC time one microsecond after `raw`, keeping at least
+/// microsecond precision, e.g. `2024-01-01T00:00:02.999999Z` becomes
+/// `2024-01-01T00:00:03.000000Z`. Returns `None` for anything that isn't a
+/// `YYYY-MM-DDTHH:MM:SS[.fraction]Z` time.
+pub(crate) fn next_microsecond(raw: &str) -> Option<String> {
+    let (secs, nanos, digits) = parse_rfc3339_utc(raw)?;
+    let total = i128::from(secs) * 1_000_000_000 + i128::from(nanos) + 1_000;
+    let secs = total.div_euclid(1_000_000_000) as i64;
+    let nanos = total.rem_euclid(1_000_000_000) as u32;
+    let days = secs.div_euclid(86_400);
+    let rem = secs.rem_euclid(86_400);
+    let (y, m, d) = civil_from_days(days);
+    let (h, min, s) = (rem / 3600, rem % 3600 / 60, rem % 60);
+    let fraction = if digits > 6 {
+        format!("{nanos:09}")
+    } else {
+        format!("{:06}", nanos / 1_000)
+    };
+    Some(format!(
+        "{y:04}-{m:02}-{d:02}T{h:02}:{min:02}:{s:02}.{fraction}Z"
+    ))
+}
+
+/// Parses `YYYY-MM-DDTHH:MM:SS[.fraction]Z` into (Unix seconds, nanoseconds,
+/// number of fraction digits). Only the `Z` (UTC) form is accepted.
+fn parse_rfc3339_utc(raw: &str) -> Option<(i64, u32, usize)> {
+    let raw = raw.strip_suffix('Z').or_else(|| raw.strip_suffix('z'))?;
+    let (date, time) = raw.split_once(['T', 't'])?;
+    let mut date = date.splitn(3, '-');
+    let year: i64 = date.next()?.parse().ok()?;
+    let month: u32 = date.next()?.parse().ok()?;
+    let day: u32 = date.next()?.parse().ok()?;
+    let (hms, fraction) = match time.split_once('.') {
+        Some((hms, fraction)) => (hms, fraction),
+        None => (time, ""),
+    };
+    let mut hms = hms.splitn(3, ':');
+    let hour: i64 = hms.next()?.parse().ok()?;
+    let minute: i64 = hms.next()?.parse().ok()?;
+    let second: i64 = hms.next()?.parse().ok()?;
+    let valid = (1..=12).contains(&month)
+        && (1..=31).contains(&day)
+        && hour < 24
+        && minute < 60
+        && second < 60
+        && fraction.len() <= 9
+        && fraction.bytes().all(|b| b.is_ascii_digit());
+    if !valid {
+        return None;
+    }
+    let nanos: u32 = if fraction.is_empty() {
+        0
+    } else {
+        format!("{fraction:0<9}").parse().ok()?
+    };
+    let secs = days_from_civil(year, month, day) * 86_400 + hour * 3600 + minute * 60 + second;
+    Some((secs, nanos, fraction.len()))
+}
+
+/// (year, month, day) in the proleptic Gregorian calendar to days since
+/// 1970-01-01. Howard Hinnant's `days_from_civil` algorithm, the inverse of
+/// [`civil_from_days`].
+fn days_from_civil(y: i64, m: u32, d: u32) -> i64 {
+    let y = if m <= 2 { y - 1 } else { y };
+    let era = y.div_euclid(400);
+    let yoe = y.rem_euclid(400);
+    let m = i64::from(m);
+    let mp = if m > 2 { m - 3 } else { m + 9 };
+    let doy = (153 * mp + 2) / 5 + i64::from(d) - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    era * 146_097 + doe - 719_468
+}
+
 /// Checks that `value` is a finite number in `0.0..=1.0`.
 pub(crate) fn unit_interval(what: &str, value: f64) -> Result<f64> {
     if (0.0..=1.0).contains(&value) {
@@ -123,6 +196,57 @@ mod tests {
             "1970-01-01T00:00:00Z"
         );
         assert!(rfc3339(UNIX_EPOCH - Duration::from_secs(1), "t").is_err());
+    }
+
+    #[test]
+    fn next_microsecond_steps_past_a_time() {
+        let next = |s| next_microsecond(s);
+        assert_eq!(
+            next("2026-10-21T21:48:30.736283Z").as_deref(),
+            Some("2026-10-21T21:48:30.736284Z")
+        );
+        // Carries into the next second, day, month and year.
+        assert_eq!(
+            next("2024-12-31T23:59:59.999999Z").as_deref(),
+            Some("2025-01-01T00:00:00.000000Z")
+        );
+        // Leap day.
+        assert_eq!(
+            next("2024-02-28T23:59:59.999999Z").as_deref(),
+            Some("2024-02-29T00:00:00.000000Z")
+        );
+        // Shorter and longer fractions.
+        assert_eq!(
+            next("2024-01-01T00:00:00Z").as_deref(),
+            Some("2024-01-01T00:00:00.000001Z")
+        );
+        assert_eq!(
+            next("2024-01-01T00:00:00.5Z").as_deref(),
+            Some("2024-01-01T00:00:00.500001Z")
+        );
+        assert_eq!(
+            next("2024-01-01T00:00:00.123456789Z").as_deref(),
+            Some("2024-01-01T00:00:00.123457789Z")
+        );
+        // Not a UTC RFC 3339 time.
+        for bad in [
+            "",
+            "t1",
+            "2024-01-01",
+            "2024-01-01T00:00:00+02:00",
+            "2024-13-01T00:00:00Z",
+            "2024-01-01T00:00:00.x1Z",
+        ] {
+            assert_eq!(next(bad), None, "{bad}");
+        }
+    }
+
+    #[test]
+    fn days_round_trip() {
+        for days in [-719_468, -1, 0, 1, 11_016, 19_723, 2_932_896] {
+            let (y, m, d) = civil_from_days(days);
+            assert_eq!(days_from_civil(y, m, d), days);
+        }
     }
 
     #[test]
