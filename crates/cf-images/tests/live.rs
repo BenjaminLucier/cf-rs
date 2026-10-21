@@ -30,31 +30,34 @@ fn unique(prefix: &str) -> String {
     format!("{prefix}{nanos}")
 }
 
-/// A valid 1x1 transparent PNG.
+/// A valid 1x1 PNG (accepted by the live Images API).
 const PNG: &[u8] = &[
     0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
     0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4,
-    0x89, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
-    0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae,
-    0x42, 0x60, 0x82,
+    0x89, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x44, 0x41, 0x54, 0x78, 0xda, 0x63, 0x64, 0x60, 0xf8, 0x5f,
+    0x0f, 0x00, 0x02, 0x87, 0x01, 0x80, 0xeb, 0x47, 0xba, 0x92, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45,
+    0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
 ];
 
-/// Deletes the image when dropped unless `disarm`ed.
+/// Deletes the image when dropped unless its `id` is cleared.
+///
+/// Drop can't be async, so the delete runs on a fresh runtime thread with its
+/// own `Client`: reusing the test's client would hand that thread connections
+/// owned by the (blocked) test runtime and deadlock.
 struct Cleanup {
-    client: Client,
     id: Option<ImageId>,
 }
 
 impl Drop for Cleanup {
     fn drop(&mut self) {
         if let Some(id) = self.id.take() {
-            let client = self.client.clone();
-            // Drop can't be async; run the delete on a fresh runtime thread.
             let _ = std::thread::spawn(move || {
+                let client = client()?;
                 tokio::runtime::Builder::new_current_thread()
                     .enable_all()
-                    .build()
-                    .map(|rt| rt.block_on(client.images().delete(&id)))
+                    .build()?
+                    .block_on(client.images().delete(&id))?;
+                anyhow::Ok(())
             })
             .join();
         }
@@ -79,7 +82,6 @@ async fn full_lifecycle() -> Result<()> {
         .await?;
     let id = image.id.clone().context("uploaded image has an id")?;
     let mut cleanup = Cleanup {
-        client: client.clone(),
         id: Some(id.clone()),
     };
     assert_eq!(image.filename.as_deref(), Some("cf-images-live.png"));
@@ -182,7 +184,6 @@ async fn custom_id_with_slash() -> Result<()> {
         .await?;
     let id = image.id.context("id")?;
     let _cleanup = Cleanup {
-        client: client.clone(),
         id: Some(id.clone()),
     };
     assert_eq!(id, custom);
@@ -204,7 +205,6 @@ async fn direct_upload_url() -> Result<()> {
         .await?;
     let id = upload.id.context("id")?;
     let _cleanup = Cleanup {
-        client: client.clone(),
         id: Some(id.clone()),
     };
     let upload_url = upload.upload_url.context("uploadURL")?;
