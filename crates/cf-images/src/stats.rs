@@ -27,6 +27,9 @@ pub struct StatsCount {
 impl Client {
     /// Fetches usage statistics.
     ///
+    /// The counts update asynchronously: right after uploads or deletes
+    /// they can lag behind for a short while (observed live).
+    ///
     /// `GET /accounts/{account_id}/images/v1/stats`
     ///
     /// ```no_run
