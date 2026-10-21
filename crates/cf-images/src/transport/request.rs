@@ -13,6 +13,11 @@ pub(crate) enum Body {
 /// One API call. `segments` are relative to `accounts/{account_id}/images/`
 /// and are percent-encoded individually, so an ID containing `/` stays one
 /// path segment.
+///
+/// API quirk: custom image IDs may contain `/`, and the API reference
+/// doesn't say how to send them in a path. Encoding them as `%2F` works: the
+/// `custom_id_with_slash` live test uploads, fetches and deletes such an
+/// image.
 pub(crate) struct ApiRequest {
     pub(crate) method: Method,
     pub(crate) segments: Vec<String>,

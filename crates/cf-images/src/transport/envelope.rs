@@ -71,6 +71,10 @@ pub(crate) fn api_error(status: StatusCode, headers: &HeaderMap, body: &[u8]) ->
 
 /// For a non-JSON success response (the blob endpoint), detects a JSON error
 /// envelope served with a 2xx status.
+///
+/// Not verified live: this is a defensive check; a JSON error with a 2xx
+/// status has never been observed on the blob endpoint. It only applies to
+/// `application/json` responses, so it can't misread image bytes.
 pub(crate) fn embedded_error(
     status: StatusCode,
     headers: &HeaderMap,
