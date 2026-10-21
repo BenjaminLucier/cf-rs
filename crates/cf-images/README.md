@@ -82,14 +82,14 @@ See [`examples/`](examples):
 
 | Example | Shows |
 |---|---|
-| `upload` | Uploading a local file |
-| `download` | Downloading an image's original bytes |
-| `list_all` | Streaming every image |
-| `search_metadata` | Listing with metadata filters |
-| `variants` | Creating, updating, listing and deleting variants |
-| `delivery_urls` | Building named, flexible and custom-domain URLs (offline) |
-| `signed_url` | Signing a URL for a private image (offline) |
-| `direct_upload` | One-time upload URLs for end users |
+| `images_upload` | Uploading a local file |
+| `images_download` | Downloading an image's original bytes |
+| `images_list_all` | Streaming every image |
+| `images_search_metadata` | Listing with metadata filters |
+| `images_variants` | Creating, updating, listing and deleting variants |
+| `images_delivery_urls` | Building named, flexible and custom-domain URLs (offline) |
+| `images_signed_url` | Signing a URL for a private image (offline) |
+| `images_direct_upload` | One-time upload URLs for end users |
 
 ## MSRV
 

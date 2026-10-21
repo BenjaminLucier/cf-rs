@@ -1,7 +1,7 @@
 //! Create a one-time upload URL, then upload to it the way a browser would.
 //!
 //! ```sh
-//! CF_ACCOUNT_ID=... CF_API_TOKEN=... cargo run --example direct_upload -- path/to/cat.png
+//! CF_ACCOUNT_ID=... CF_API_TOKEN=... cargo run --example images_direct_upload -- path/to/cat.png
 //! ```
 
 use std::time::Duration;
@@ -14,7 +14,7 @@ use cf_images::reqwest::multipart::{Form, Part};
 async fn main() -> anyhow::Result<()> {
     let path = std::env::args()
         .nth(1)
-        .context("usage: direct_upload <file>")?;
+        .context("usage: images_direct_upload <file>")?;
     let client = Client::new(
         std::env::var("CF_ACCOUNT_ID").context("CF_ACCOUNT_ID")?,
         std::env::var("CF_API_TOKEN").context("CF_API_TOKEN")?,

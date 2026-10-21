@@ -2,7 +2,7 @@
 //! needed.
 //!
 //! ```sh
-//! cargo run --example delivery_urls
+//! cargo run --example images_delivery_urls
 //! ```
 
 use cf_images::{AccountHash, Delivery, Fit, FlexibleVariant};

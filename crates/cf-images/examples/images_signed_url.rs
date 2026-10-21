@@ -1,7 +1,7 @@
 //! Build a signed delivery URL for a private image. No network access needed.
 //!
 //! ```sh
-//! CF_ACCOUNT_HASH=... CF_SIGNING_KEY=... cargo run --example signed_url -- <image-id> [variant]
+//! CF_ACCOUNT_HASH=... CF_SIGNING_KEY=... cargo run --example images_signed_url -- <image-id> [variant]
 //! ```
 
 use std::time::Duration;
@@ -13,7 +13,7 @@ fn main() -> anyhow::Result<()> {
     let mut args = std::env::args().skip(1);
     let image_id = args
         .next()
-        .context("usage: signed_url <image-id> [variant]")?;
+        .context("usage: images_signed_url <image-id> [variant]")?;
     let variant = args.next().unwrap_or_else(|| "public".to_owned());
 
     let delivery = Delivery::new(AccountHash::new(

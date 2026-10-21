@@ -1,7 +1,7 @@
 //! Create, update, list and delete a variant.
 //!
 //! ```sh
-//! CF_ACCOUNT_ID=... CF_API_TOKEN=... cargo run --example variants
+//! CF_ACCOUNT_ID=... CF_API_TOKEN=... cargo run --example images_variants
 //! ```
 
 use anyhow::Context;

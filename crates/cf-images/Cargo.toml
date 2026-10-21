@@ -52,5 +52,5 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [[example]]
-name = "signed_url"
+name = "images_signed_url"
 required-features = ["signing"]
