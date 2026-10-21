@@ -3,6 +3,8 @@
 [![crates.io](https://img.shields.io/crates/v/cf-images.svg)](https://crates.io/crates/cf-images)
 [![docs.rs](https://img.shields.io/docsrs/cf-images)](https://docs.rs/cf-images)
 ![MSRV](https://img.shields.io/badge/MSRV-1.85-blue)
+[![CI](https://github.com/BenjaminLucier/cf-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/BenjaminLucier/cf-rs/actions/workflows/ci.yml)
+[![License](https://img.shields.io/crates/l/cf-images.svg)](#license)
 
 Unofficial async Rust client for the [Cloudflare Images](https://developers.cloudflare.com/images/) API.
 
