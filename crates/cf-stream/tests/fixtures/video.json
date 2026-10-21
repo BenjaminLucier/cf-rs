@@ -1,0 +1,38 @@
+{
+  "allowedOrigins": ["example.com"],
+  "clippedFrom": "ea95132c15732412d22c1476fa83f27a",
+  "created": "2014-01-02T02:20:00.123Z",
+  "creator": "creator-id_abcde12345",
+  "duration": 5.5,
+  "input": {"height": 1080, "width": 1920},
+  "liveInput": "fc0a8dc887b16759bfd9ad922230a014",
+  "maxDurationSeconds": null,
+  "maxSizeBytes": null,
+  "meta": {"name": "video12345.mp4"},
+  "modified": "2014-01-02T02:20:00Z",
+  "playback": {
+    "dash": "https://customer-m033z5x00ks6nunl.cloudflarestream.com/ea95132c15732412d22c1476fa83f27a/manifest/video.mpd",
+    "hls": "https://customer-m033z5x00ks6nunl.cloudflarestream.com/ea95132c15732412d22c1476fa83f27a/manifest/video.m3u8"
+  },
+  "preview": "https://customer-m033z5x00ks6nunl.cloudflarestream.com/ea95132c15732412d22c1476fa83f27a/watch",
+  "publicDetails": {"channel_link": null, "logo": null, "media_id": 0, "share_link": null, "title": "title"},
+  "readyToStream": true,
+  "readyToStreamAt": "2014-01-02T02:20:00Z",
+  "requireSignedURLs": true,
+  "scheduledDeletion": null,
+  "size": 4190963,
+  "status": {
+    "errorReasonCode": "",
+    "errorReasonText": "",
+    "pctComplete": "39.000000",
+    "state": "ready",
+    "step": "encoding"
+  },
+  "thumbnail": "https://customer-m033z5x00ks6nunl.cloudflarestream.com/ea95132c15732412d22c1476fa83f27a/thumbnails/thumbnail.jpg",
+  "thumbnailTimestampPct": 0.529241,
+  "uid": "ea95132c15732412d22c1476fa83f27a",
+  "uploaded": "2014-01-02T02:20:00Z",
+  "uploadExpiry": null,
+  "watermark": null,
+  "someFutureField": {"nested": true}
+}

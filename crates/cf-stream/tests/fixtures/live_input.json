@@ -1,0 +1,24 @@
+{
+  "uid": "66be4bf738797e01e1fca35a7bdecdcd",
+  "created": "2014-01-02T02:20:00Z",
+  "modified": "2014-01-02T02:20:00Z",
+  "deleteRecordingAfterDays": 45,
+  "enabled": true,
+  "meta": {"name": "test stream 1"},
+  "preferLowLatency": false,
+  "recording": {
+    "allowedOrigins": ["example.com"],
+    "hideLiveViewerCount": false,
+    "mode": "off",
+    "requireSignedURLs": false,
+    "timeoutSeconds": 0
+  },
+  "status": null,
+  "rtmps": {"streamKey": "2fb3cb9f17e68a2568d6ebed8d5505eak3ceaf8c9b1f395e1b76b79332497cada", "url": "rtmps://live.cloudflare.com:443/live/"},
+  "rtmpsPlayback": {"streamKey": "2fb3cb9f17e68a2568d6ebed8d5505eak3ceaf8c9b1f395e1b76b79332497cada", "url": "rtmps://live.cloudflare.com:443/live/"},
+  "srt": {"passphrase": "srt-passphrase-secret", "streamId": "srt-stream-id-secret", "url": "srt://live.cloudflare.com:778"},
+  "srtPlayback": {"passphrase": "srt-playback-passphrase", "streamId": "srt-playback-id", "url": "srt://live.cloudflare.com:778"},
+  "webRTC": {"url": "https://customer-m033z5x00ks6nunl.cloudflarestream.com/webrtc-key-secret/webRTC/publish"},
+  "webRTCPlayback": {"url": "https://customer-m033z5x00ks6nunl.cloudflarestream.com/66be4bf738797e01e1fca35a7bdecdcd/webRTC/play"},
+  "somethingNew": [1, 2, 3]
+}

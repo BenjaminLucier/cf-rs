@@ -19,9 +19,11 @@ or after 90 days at the latest.
 
 In scope: the code in this repository, in particular
 
-- handling of API tokens and signing keys (they must never appear in logs,
-  `Debug` or error output),
-- signed delivery URL generation (`UrlSigner`),
+- handling of API tokens, signing keys, stream keys and webhook secrets (they
+  must never appear in logs, `Debug` or error output),
+- signed delivery URL and token generation (`cf_images::UrlSigner`,
+  `cf_stream::TokenSigner`),
+- webhook signature verification (`cf_stream::WebhookVerifier`),
 - request construction and response parsing.
 
 Out of scope:

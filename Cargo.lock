@@ -130,6 +130,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "cf-stream"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "base64 0.23.1",
+ "bytes",
+ "futures-core",
+ "futures-util",
+ "hex",
+ "hmac",
+ "reqwest",
+ "ring",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "sha2",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "wiremock",
+]
+
+[[package]]
 name = "cfg-if"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
