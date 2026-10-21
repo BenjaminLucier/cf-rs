@@ -1,6 +1,6 @@
 [package]
 name = "cf-stream"
-version = "0.1.0"
+version = "0.1.1"
 description = "Unofficial async Rust client for the Cloudflare Stream API: upload, manage, and deliver videos and live streams, including signed tokens and webhook verification."
 keywords = ["cloudflare", "stream", "video", "api", "client"]
 categories = ["api-bindings", "web-programming::http-client", "multimedia::video"]

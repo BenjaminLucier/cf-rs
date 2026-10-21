@@ -6,6 +6,16 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/BenjaminLucier/cf-rs/compare/cf-stream-v0.1.0...cf-stream-v0.1.1) - 2026-10-21
+
+### Fixed
+
+- *(cf-stream)* page oldest-first video lists past the inclusive `after` ([#12](https://github.com/BenjaminLucier/cf-rs/pull/12))
+
+### Other
+
+- say what gap the crates fill ([#11](https://github.com/BenjaminLucier/cf-rs/pull/11))
+
 ## [0.1.0] - 2026-10-21
 
 ### Added
