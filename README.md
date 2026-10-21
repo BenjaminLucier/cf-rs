@@ -31,10 +31,6 @@ cargo deny check
 Live tests against the real API are `#[ignore]`d; see
 [`crates/cf-images/tests/live.rs`](crates/cf-images/tests/live.rs).
 
-The `docs/` directory holds the API reference and the filtered OpenAPI schema
-the crates were checked against, plus [`docs/NOTES.md`](docs/NOTES.md) with
-known discrepancies between Cloudflare's docs and schema.
-
 Releases are automated with [release-plz](https://release-plz.dev); tags look
 like `cf-images-v0.1.0`.
 
