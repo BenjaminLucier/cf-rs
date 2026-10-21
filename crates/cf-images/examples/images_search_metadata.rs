@@ -1,7 +1,7 @@
 //! List images whose metadata matches filters.
 //!
 //! ```sh
-//! CF_ACCOUNT_ID=... CF_API_TOKEN=... cargo run --example search_metadata
+//! CF_ACCOUNT_ID=... CF_API_TOKEN=... cargo run --example images_search_metadata
 //! ```
 
 use anyhow::Context;

@@ -1,7 +1,7 @@
 //! Stream every image in the account.
 //!
 //! ```sh
-//! CF_ACCOUNT_ID=... CF_API_TOKEN=... cargo run --example list_all
+//! CF_ACCOUNT_ID=... CF_API_TOKEN=... cargo run --example images_list_all
 //! ```
 
 use anyhow::Context;

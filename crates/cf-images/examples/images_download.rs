@@ -1,7 +1,7 @@
 //! Download the original bytes of an image.
 //!
 //! ```sh
-//! CF_ACCOUNT_ID=... CF_API_TOKEN=... cargo run --example download -- <image-id> <output-file>
+//! CF_ACCOUNT_ID=... CF_API_TOKEN=... cargo run --example images_download -- <image-id> <output-file>
 //! ```
 
 use anyhow::Context;
@@ -10,7 +10,7 @@ use cf_images::Client;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let mut args = std::env::args().skip(1);
-    let usage = "usage: download <image-id> <output-file>";
+    let usage = "usage: images_download <image-id> <output-file>";
     let id = args.next().context(usage)?;
     let output = args.next().context(usage)?;
     let client = Client::new(
