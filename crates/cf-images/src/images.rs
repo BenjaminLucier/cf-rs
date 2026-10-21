@@ -983,10 +983,10 @@ impl<'a> ListImagesRequest<'a> {
                 match state.request.send().await {
                     Ok(page) => {
                         state.buffer.extend(page.images);
-                        // Not verified live: the reference says the last page
-                        // has no token, but doesn't say whether that means
-                        // `null` or `""`, so both end the stream. The live
-                        // tests only list one page.
+                        // API quirk (observed 2026-10-21, `list_pagination`
+                        // live test): the last page has
+                        // `"continuation_token": null`. An empty string ends
+                        // the stream too, as a guard.
                         match page.continuation_token.filter(|t| !t.is_empty()) {
                             // Stop if the API ever hands back the token we just
                             // used, rather than looping forever.

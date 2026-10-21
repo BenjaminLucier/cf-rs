@@ -12,6 +12,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use anyhow::{Context, Result};
 use cf_images::{AccountHash, Client, Delivery, ImageId, UpdateImage, UploadSource};
+use futures_util::TryStreamExt;
 use serde_json::json;
 
 fn env(name: &str) -> Result<String> {
@@ -168,6 +169,62 @@ async fn list_stats_variants_keys() -> Result<()> {
     assert!(variants.contains_key("public"), "{variants:?}");
     let keys = client.signing_keys().list().await?;
     assert!(!keys.is_empty());
+    Ok(())
+}
+
+#[tokio::test]
+#[ignore = "requires Cloudflare credentials"]
+async fn list_pagination() -> Result<()> {
+    // 11 images at 10 per page: the first page has a continuation token,
+    // the last has `null`, and the stream follows it to the end.
+    let client = client()?;
+    let creator = unique("cf-images-live-page-");
+    let mut cleanups = Vec::new();
+    for i in 0..11 {
+        let image = client
+            .images()
+            .upload(UploadSource::bytes(PNG.to_vec(), format!("page-{i}.png")))
+            .creator(&creator)
+            .send()
+            .await?;
+        cleanups.push(Cleanup {
+            id: Some(image.id.context("id")?),
+        });
+    }
+
+    let first = client
+        .images()
+        .list()
+        .creator(&creator)
+        .per_page(10)
+        .send()
+        .await?;
+    assert_eq!(first.images.len(), 10);
+    let token = first
+        .continuation_token
+        .clone()
+        .context("first page has a continuation token")?;
+    let last = client
+        .images()
+        .list()
+        .creator(&creator)
+        .per_page(10)
+        .continuation_token(token)
+        .send()
+        .await?;
+    assert_eq!(last.images.len(), 1);
+    assert_eq!(last.continuation_token, None, "last page token is null");
+
+    let all: Vec<_> = client
+        .images()
+        .list()
+        .creator(&creator)
+        .per_page(10)
+        .into_stream()
+        .try_collect()
+        .await?;
+    assert_eq!(all.len(), 11);
+    drop(cleanups);
     Ok(())
 }
 
