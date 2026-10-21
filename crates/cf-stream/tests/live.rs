@@ -104,6 +104,87 @@ async fn list_and_storage_usage() -> Result<()> {
 
 #[tokio::test]
 #[ignore = "requires Cloudflare credentials"]
+async fn list_date_bounds() -> Result<()> {
+    // Three pending direct uploads, created a little apart.
+    let client = client()?;
+    let name = unique("cf-stream-live-bounds-");
+    let mut ids = Vec::new();
+    let mut cleanups = Vec::new();
+    for _ in 0..3 {
+        let upload = client
+            .direct_uploads()
+            .create(60)
+            .meta(&json!({ "name": name }))
+            .send()
+            .await?;
+        let id = upload.uid.context("uid")?;
+        cleanups.push(Cleanup(Some(Resource::Video(id.clone()))));
+        ids.push(id);
+        tokio::time::sleep(Duration::from_millis(1100)).await;
+    }
+
+    let listed = |asc: bool| {
+        client
+            .videos()
+            .list()
+            .video_name(&name)
+            .asc(asc)
+            .limit(1)
+            .into_stream()
+            .map_ok(|v| v.uid.expect("uid"))
+            .try_collect::<Vec<_>>()
+    };
+    // One video per page, so every boundary is crossed in both directions.
+    assert_eq!(listed(true).await?, ids, "oldest first");
+    let mut newest_first = ids.clone();
+    newest_first.reverse();
+    assert_eq!(listed(false).await?, newest_first, "newest first");
+
+    // `before` is exclusive and `after` inclusive of the exact time.
+    let middle = client.videos().get(&ids[1]).await?;
+    let created = middle.created.context("created")?;
+    let raw = |param: &'static str| {
+        let created = created.clone();
+        let name = name.clone();
+        async move {
+            // Raw request: the crate's `before`/`after` take a `SystemTime`
+            // with whole seconds, but this needs the exact microseconds.
+            let url = cf_stream::reqwest::Url::parse_with_params(
+                &format!(
+                    "https://api.cloudflare.com/client/v4/accounts/{}/stream",
+                    env("CF_ACCOUNT_ID")?
+                ),
+                &[("video_name", name.as_str()), (param, created.as_str())],
+            )?;
+            let body: serde_json::Value = cf_stream::reqwest::Client::new()
+                .get(url)
+                .bearer_auth(env("CF_API_TOKEN")?)
+                .send()
+                .await?
+                .json()
+                .await?;
+            let uids: Vec<String> = body["result"]
+                .as_array()
+                .context("result array")?
+                .iter()
+                .filter_map(|v| v["uid"].as_str().map(str::to_owned))
+                .collect();
+            anyhow::Ok(uids)
+        }
+    };
+    let before = raw("before").await?;
+    assert_eq!(before, [ids[0].to_string()], "before is exclusive");
+    let mut after = raw("after").await?;
+    after.sort();
+    let mut expected = vec![ids[1].to_string(), ids[2].to_string()];
+    expected.sort();
+    assert_eq!(after, expected, "after is inclusive");
+    drop(cleanups);
+    Ok(())
+}
+
+#[tokio::test]
+#[ignore = "requires Cloudflare credentials"]
 async fn signing_key_lifecycle() -> Result<()> {
     let client = client()?;
     let key = client.signing_keys().create().await?;

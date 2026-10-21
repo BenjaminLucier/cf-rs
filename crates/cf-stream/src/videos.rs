@@ -772,7 +772,9 @@ pub struct ListVideosRequest<'a> {
 const DEFAULT_LIMIT: u32 = 1000;
 
 impl<'a> ListVideosRequest<'a> {
-    /// Only videos created after this time (the `after` parameter).
+    /// Only videos created at or after this time (the `after` parameter).
+    /// The bound is **inclusive**: a video created exactly at `at` is
+    /// returned.
     ///
     /// ```no_run
     /// # async fn run(client: cf_stream::Client) -> cf_stream::Result<()> {
@@ -787,7 +789,9 @@ impl<'a> ListVideosRequest<'a> {
         self
     }
 
-    /// Only videos created before this time (the `before` parameter).
+    /// Only videos created before this time (the `before` parameter). The
+    /// bound is **exclusive**: a video created exactly at `at` is not
+    /// returned.
     ///
     /// ```no_run
     /// # async fn run(client: cf_stream::Client) -> cf_stream::Result<()> {
@@ -1038,11 +1042,19 @@ impl<'a> ListVideosRequest<'a> {
     /// after the first error.
     ///
     /// The API has no page cursor, so each request after the first narrows
-    /// the creation-time window (`before`, or `after` with
-    /// [`asc`](Self::asc)) to the last video seen. Videos on the boundary
-    /// are deduplicated. If more videos than [`limit`](Self::limit) share
-    /// one creation time, the stream can't get past them and yields an
-    /// [`Error::InvalidInput`] instead of looping.
+    /// the creation-time window to the last video seen: `before` (newest
+    /// first, the default) or `after` (with [`asc`](Self::asc)). Creation
+    /// times have microsecond precision, so videos rarely share one.
+    ///
+    /// - Newest first: `before` is exclusive, so pages don't overlap. A video
+    ///   sharing the exact microsecond of the last one on a page would be
+    ///   skipped.
+    /// - Oldest first: `after` is inclusive, so the next page starts one
+    ///   microsecond after the last video, with the same caveat. If a
+    ///   creation time can't be parsed, the boundary is repeated instead and
+    ///   deduplicated; if more videos than [`limit`](Self::limit) then share
+    ///   one creation time, the stream yields an [`Error::InvalidInput`]
+    ///   instead of looping.
     ///
     /// ```no_run
     /// # async fn run(client: cf_stream::Client) -> cf_stream::Result<()> {
@@ -1114,11 +1126,17 @@ impl<'a> ListVideosRequest<'a> {
                     ));
                 };
                 // Remember every video at the new boundary time, so a request
-                // that includes the boundary doesn't repeat them. The API
-                // reference doesn't say whether `before`/`after` are
-                // inclusive, and that hasn't been verified live, so both
-                // cases are handled.
-                if previous.as_deref() != Some(cursor.as_str()) {
+                // that includes the boundary doesn't repeat them.
+                //
+                // API quirk (observed 2026-10-21, `list_date_bounds` live
+                // test): the reference doesn't say, but `before` (`end`) is
+                // exclusive and `after` (`start`) is inclusive. Descending
+                // pages therefore don't overlap; ascending pages step one
+                // microsecond past the boundary (below). This dedup only
+                // matters if that step isn't possible.
+                if previous.as_deref() != Some(cursor.as_str())
+                    && previous.as_deref() != crate::util::next_microsecond(&cursor).as_deref()
+                {
                     self.seen.clear();
                 }
                 self.seen.extend(
@@ -1127,11 +1145,16 @@ impl<'a> ListVideosRequest<'a> {
                         .filter(|v| v.created.as_deref() == Some(cursor.as_str()))
                         .filter_map(|v| v.uid.clone()),
                 );
-                let bound = Some(Bound::Raw(cursor));
                 if self.ascending() {
-                    self.request.after = bound;
+                    // `after` is inclusive, so step just past the boundary;
+                    // otherwise a full page could be the boundary video
+                    // again (always, with `limit(1)`). If the time can't be
+                    // parsed, fall back to the inclusive bound and rely on
+                    // the dedup above.
+                    let next = crate::util::next_microsecond(&cursor).unwrap_or(cursor);
+                    self.request.after = Some(Bound::Raw(next));
                 } else {
-                    self.request.before = bound;
+                    self.request.before = Some(Bound::Raw(cursor));
                 }
                 Ok(())
             }
