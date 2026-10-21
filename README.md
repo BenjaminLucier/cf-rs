@@ -6,6 +6,12 @@
 
 Unofficial Rust clients for Cloudflare media APIs.
 
+The official [`cloudflare`](https://crates.io/crates/cloudflare) crate has no
+Images or Stream endpoints, so these crates fill that gap: typed async clients
+for uploading, managing and delivering images and video, plus the pieces the
+REST API leaves to you, like signed delivery URLs and playback tokens, and
+webhook signature verification.
+
 > **Unofficial.** These crates are not affiliated with, endorsed by, or
 > supported by Cloudflare, Inc. "Cloudflare" is a trademark of Cloudflare, Inc.
 > For the rest of the Cloudflare API, see the official

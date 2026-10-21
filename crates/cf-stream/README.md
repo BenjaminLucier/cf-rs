@@ -7,6 +7,9 @@
 [![License](https://img.shields.io/crates/l/cf-stream.svg)](#license)
 
 Unofficial async Rust client for the [Cloudflare Stream](https://developers.cloudflare.com/stream/) API.
+The official [`cloudflare`](https://crates.io/crates/cloudflare) crate has no
+Stream endpoints; this crate covers videos, uploads, live inputs and more, and
+adds signed playback tokens and webhook verification.
 
 > **Unofficial.** This crate is not affiliated with, endorsed by, or supported
 > by Cloudflare, Inc.

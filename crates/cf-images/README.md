@@ -7,6 +7,9 @@
 [![License](https://img.shields.io/crates/l/cf-images.svg)](#license)
 
 Unofficial async Rust client for the [Cloudflare Images](https://developers.cloudflare.com/images/) API.
+The official [`cloudflare`](https://crates.io/crates/cloudflare) crate has no
+Images endpoints; this crate covers the whole Images API and adds delivery and
+signed URL helpers.
 
 > **Unofficial.** This crate is not affiliated with, endorsed by, or supported
 > by Cloudflare, Inc.
