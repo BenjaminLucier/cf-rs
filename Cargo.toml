@@ -30,7 +30,7 @@ base64 = "0.23.1"
 tracing = { version = "0.1.44", default-features = false, features = ["std", "attributes"] }
 
 # dev-dependencies
-tokio = { version = "1.54.0", features = ["macros", "rt-multi-thread", "time", "fs"] }
+tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "time", "fs"] }
 wiremock = "0.6.5"
 anyhow = "1.0.104"
 
