@@ -46,8 +46,10 @@ pub struct Image {
     /// Delivery URLs, one per variant.
     pub variants: Option<Vec<String>>,
     /// `true` while a direct creator upload has been created but not yet
-    /// completed. Not in the OpenAPI schema; documented on the direct creator
-    /// upload guide.
+    /// completed.
+    // API quirk: not in the OpenAPI schema, only on the direct creator
+    // upload guide; the `direct_upload_url` live test sees it cleared once
+    // the upload completes.
     pub draft: Option<bool>,
 }
 
@@ -981,6 +983,10 @@ impl<'a> ListImagesRequest<'a> {
                 match state.request.send().await {
                     Ok(page) => {
                         state.buffer.extend(page.images);
+                        // Not verified live: the reference says the last page
+                        // has no token, but doesn't say whether that means
+                        // `null` or `""`, so both end the stream. The live
+                        // tests only list one page.
                         match page.continuation_token.filter(|t| !t.is_empty()) {
                             // Stop if the API ever hands back the token we just
                             // used, rather than looping forever.
