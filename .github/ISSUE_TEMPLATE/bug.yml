@@ -6,7 +6,7 @@ body:
     id: crate
     attributes:
       label: Crate
-      options: [cf-images]
+      options: [cf-images, cf-stream]
     validations:
       required: true
   - type: input

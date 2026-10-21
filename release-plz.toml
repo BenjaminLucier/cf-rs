@@ -12,3 +12,7 @@ publish_timeout = "10m"
 [[package]]
 name = "cf-images"
 changelog_path = "crates/cf-images/CHANGELOG.md"
+
+[[package]]
+name = "cf-stream"
+changelog_path = "crates/cf-stream/CHANGELOG.md"

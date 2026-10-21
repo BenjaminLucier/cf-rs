@@ -1,10 +1,8 @@
 # cf-rs
 
 [![CI](https://github.com/BenjaminLucier/cf-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/BenjaminLucier/cf-rs/actions/workflows/ci.yml)
-[![crates.io](https://img.shields.io/crates/v/cf-images.svg)](https://crates.io/crates/cf-images)
-[![docs.rs](https://img.shields.io/docsrs/cf-images)](https://docs.rs/cf-images)
 ![MSRV](https://img.shields.io/badge/MSRV-1.85-blue)
-[![License](https://img.shields.io/crates/l/cf-images.svg)](#license)
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
 
 Unofficial Rust clients for Cloudflare media APIs.
 
@@ -13,14 +11,17 @@ Unofficial Rust clients for Cloudflare media APIs.
 > For the rest of the Cloudflare API, see the official
 > [`cloudflare`](https://crates.io/crates/cloudflare) crate.
 
-| Crate | Description | Docs |
-|---|---|---|
-| [`cf-images`](crates/cf-images) | Cloudflare Images: uploads, variants, signing keys, direct creator uploads, delivery and signed URLs | [docs.rs](https://docs.rs/cf-images) |
+| Crate | Description | Version | Docs |
+|---|---|---|---|
+| [`cf-images`](crates/cf-images) | Cloudflare Images: uploads, variants, signing keys, direct creator uploads, delivery and signed URLs | [![crates.io](https://img.shields.io/crates/v/cf-images.svg)](https://crates.io/crates/cf-images) | [docs.rs](https://docs.rs/cf-images) |
+| [`cf-stream`](crates/cf-stream) | Cloudflare Stream: videos, uploads (basic, URL, direct, tus creation), captions, audio tracks, downloads, live inputs, watermarks, webhooks, delivery URLs, signed tokens and webhook verification | [![crates.io](https://img.shields.io/crates/v/cf-stream.svg)](https://crates.io/crates/cf-stream) | [docs.rs](https://docs.rs/cf-stream) |
 
-Each crate is versioned and released on its own. All of them share the same
-conventions: async `reqwest`-based clients, `#[non_exhaustive]` public types,
-deserialization that tolerates additive API changes, and the same feature
-names (`rustls-tls`, `native-tls`, `tracing`, `signing`).
+Each crate is versioned and released on its own, and is self-contained: there
+is no shared core crate (see [CONTRIBUTING.md](CONTRIBUTING.md#crate-architecture)).
+All of them share the same conventions: async `reqwest`-based clients,
+`#[non_exhaustive]` public types, deserialization that tolerates additive API
+changes, and the same feature names where they apply (`rustls-tls`,
+`native-tls`, `tracing`, `signing`).
 
 ## Development
 
@@ -34,11 +35,11 @@ cargo hack check --workspace --feature-powerset
 cargo deny check
 ```
 
-Live tests against the real API are `#[ignore]`d; see
-[`crates/cf-images/tests/live.rs`](crates/cf-images/tests/live.rs).
+Live tests against the real API are `#[ignore]`d; see each crate's
+`tests/live.rs`, e.g. [`crates/cf-images/tests/live.rs`](crates/cf-images/tests/live.rs).
 
 Releases are automated with [release-plz](https://release-plz.dev); tags look
-like `cf-images-v0.1.0`.
+like `cf-images-v0.1.0` or `cf-stream-v0.1.0`.
 
 ## License
 

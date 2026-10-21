@@ -30,12 +30,78 @@ The minimum supported Rust version is 1.85; don't raise it without discussion.
 
 - Most tests run against a local [`wiremock`](https://crates.io/crates/wiremock)
   server, so they need no network or credentials. Add fixtures to
-  `crates/cf-images/tests/fixtures/`.
+  `crates/<crate>/tests/fixtures/`.
 - Tests against the real Cloudflare API live in
-  `crates/cf-images/tests/live.rs`. They are `#[ignore]`d, need your own
+  `crates/<crate>/tests/live.rs`. They are `#[ignore]`d, need your own
   account and a token, and are never required for a PR. See the file header
   for how to run them.
 - Never commit tokens, signing keys or account IDs.
+
+## Crate architecture
+
+Each crate under `crates/` is self-contained and released on its own. There
+is deliberately **no shared core crate**: the plumbing every client needs is
+copied into each crate rather than shared. The copied modules are:
+
+- `src/transport.rs` and `src/transport/` (request building, auth, envelope
+  parsing; each crate has its own path prefix and tracing span name),
+- `src/error.rs` (`Error`, `ApiError`, `Result`),
+- `src/types.rs` (the identifier newtype macro, `AccountId`, helpers),
+- `src/client.rs` (`Client`, `ClientBuilder`),
+- `tests/common/mod.rs` (wiremock and multipart test helpers).
+
+Why: crates release independently, a breaking change in shared code would
+force coordinated major releases of every crate, and each Cloudflare product
+has quirks (Stream's list counts, inconsistent delete responses, tus headers)
+that a shared transport would need hooks for.
+
+What this means for contributors:
+
+- A fix to copied code usually belongs in **every** crate. Say in the PR if
+  you intentionally changed only one.
+- Keep public paths identical across crates (`cf_images::Error`,
+  `cf_stream::Error`, `cf_x::AccountId`, ...), so a shared core could later be
+  extracted and re-exported without breaking users.
+- We'll revisit this when a third crate lands, or if the copies drift apart
+  and cause a bug.
+
+### Documenting API quirks
+
+Cloudflare's API reference and the live API don't always agree. Whenever
+code depends on behaviour that differs from the docs or isn't documented,
+say so next to the code, so nobody "fixes" it back to the documented
+behaviour:
+
+```rust
+// API quirk (observed 2026-10-21): the API reference says this returns the
+// live input, but it returns `"result": "ok"`, so this returns `()`.
+```
+
+- Start the comment with `API quirk`, so `grep -rn "API quirk" crates/`
+  finds them all. Say what the docs claim, what the API does, and when it
+  was observed.
+- If users can notice the quirk (an extra error case, a missing field),
+  explain it in the rustdoc as well.
+- Behaviour you inferred but couldn't verify live should say so ("not
+  verified live"), so the live tests can confirm or correct it later.
+- Cover each quirk with a mock test, and with a live test where practical.
+
+## Adding a crate
+
+1. Create `crates/<name>/` following an existing crate (manifest fields,
+   features, `README.md`, `CHANGELOG.md`, licenses, `tests/live.rs`).
+   Prefix every example with the crate's short name (`images_upload`,
+   `stream_tus_upload`, ...): all crates build examples into the same
+   `target/` directory, so names must be unique across the workspace. CI
+   fails on duplicate example names.
+2. Add a `[[package]]` entry to `release-plz.toml`, the crate to the
+   **Crate** dropdowns in `.github/ISSUE_TEMPLATE/`, and a row to the root
+   README.
+3. crates.io trusted publishing can't create a crate, so a maintainer
+   publishes its **first** version manually (`cargo publish -p <name>` with a
+   short-lived token, from `main` after the PR is merged) and then adds a
+   trusted publisher for it on crates.io (this repository, workflow
+   `release-plz.yml`, environment `release`). Later releases are automatic.
 
 ## Docs and changelog
 

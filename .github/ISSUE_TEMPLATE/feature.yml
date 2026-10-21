@@ -2,6 +2,13 @@ name: Feature request
 description: Propose a new API or behaviour
 labels: [enhancement]
 body:
+  - type: dropdown
+    id: crate
+    attributes:
+      label: Crate
+      options: [cf-images, cf-stream]
+    validations:
+      required: true
   - type: textarea
     id: use-case
     attributes:

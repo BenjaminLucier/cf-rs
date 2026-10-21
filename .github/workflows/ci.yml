@@ -46,6 +46,19 @@ jobs:
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
       - run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+      # All crates build examples into the same target/<profile>/examples/
+      # directory, so an example name used by two crates makes one overwrite
+      # the other. Cargo only warns about that; fail instead.
+      - name: unique example names
+        shell: bash
+        run: |
+          dupes=$(cargo metadata --no-deps --format-version 1 --locked \
+            | jq -r '.packages[].targets[] | select(.kind | index("example")) | .name' \
+            | sort | uniq -d)
+          if [ -n "$dupes" ]; then
+            echo "::error::example names used by more than one crate: $dupes"
+            exit 1
+          fi
 
   test:
     name: test (${{ matrix.os }})
