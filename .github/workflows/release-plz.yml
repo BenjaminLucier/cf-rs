@@ -28,7 +28,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
           toolchain: stable
-      - uses: release-plz/action@8b5bf233ecb5779f63508db7cd050e948ee77cc2 # v0.5
+      - uses: release-plz/action@8b5bf233ecb5779f63508db7cd050e948ee77cc2 # v0.5.144
         with:
           command: release-pr
         env:
@@ -59,7 +59,7 @@ jobs:
           toolchain: stable
       - uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1
         id: auth
-      - uses: release-plz/action@8b5bf233ecb5779f63508db7cd050e948ee77cc2 # v0.5
+      - uses: release-plz/action@8b5bf233ecb5779f63508db7cd050e948ee77cc2 # v0.5.144
         with:
           command: release
         env:
