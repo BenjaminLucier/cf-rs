@@ -86,23 +86,6 @@ behaviour:
   verified live"), so the live tests can confirm or correct it later.
 - Cover each quirk with a mock test, and with a live test where practical.
 
-## Adding a crate
-
-1. Create `crates/<name>/` following an existing crate (manifest fields,
-   features, `README.md`, `CHANGELOG.md`, licenses, `tests/live.rs`).
-   Prefix every example with the crate's short name (`images_upload`,
-   `stream_tus_upload`, ...): all crates build examples into the same
-   `target/` directory, so names must be unique across the workspace. CI
-   fails on duplicate example names.
-2. Add a `[[package]]` entry to `release-plz.toml`, the crate to the
-   **Crate** dropdowns in `.github/ISSUE_TEMPLATE/`, and a row to the root
-   README.
-3. crates.io trusted publishing can't create a crate, so a maintainer
-   publishes its **first** version manually (`cargo publish -p <name>` with a
-   short-lived token, from `main` after the PR is merged) and then adds a
-   trusted publisher for it on crates.io (this repository, workflow
-   `release-plz.yml`, environment `release`). Later releases are automatic.
-
 ## Docs and changelog
 
 Update rustdoc for any public API change. Changelogs and version bumps are
