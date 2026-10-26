@@ -6,6 +6,12 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.2](https://github.com/BenjaminLucier/cf-rs/compare/cf-stream-v0.1.1...cf-stream-v0.1.2) - 2026-10-26
+
+### Fixed
+
+- raise MSRV to 1.87 and update ctutils (RUSTSEC-2026-0385) ([#18](https://github.com/BenjaminLucier/cf-rs/pull/18))
+
 ## [0.1.1](https://github.com/BenjaminLucier/cf-rs/compare/cf-stream-v0.1.0...cf-stream-v0.1.1) - 2026-10-21
 
 ### Fixed
