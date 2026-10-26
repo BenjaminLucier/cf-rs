@@ -1,7 +1,7 @@
 # cf-rs
 
 [![CI](https://github.com/BenjaminLucier/cf-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/BenjaminLucier/cf-rs/actions/workflows/ci.yml)
-![MSRV](https://img.shields.io/badge/MSRV-1.85-blue)
+![MSRV](https://img.shields.io/badge/MSRV-1.87-blue)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](#license)
 
 Unofficial Rust clients for Cloudflare media APIs.
