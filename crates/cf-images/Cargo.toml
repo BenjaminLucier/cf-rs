@@ -1,6 +1,6 @@
 [package]
 name = "cf-images"
-version = "0.1.0"
+version = "0.1.1"
 description = "Unofficial async Rust client for the Cloudflare Images API: upload, manage, and deliver images, including signed URLs."
 keywords = ["cloudflare", "images", "cdn", "api", "client"]
 categories = ["api-bindings", "web-programming::http-client", "multimedia::images"]

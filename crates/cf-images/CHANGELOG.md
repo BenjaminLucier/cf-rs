@@ -6,6 +6,21 @@ follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/BenjaminLucier/cf-rs/compare/cf-images-v0.1.0...cf-images-v0.1.1) - 2026-10-26
+
+### Fixed
+
+- raise MSRV to 1.87 and update ctutils (RUSTSEC-2026-0385) ([#18](https://github.com/BenjaminLucier/cf-rs/pull/18))
+
+### Other
+
+- *(cf-images)* record live-verified pagination, blob and stats behaviour ([#13](https://github.com/BenjaminLucier/cf-rs/pull/13))
+- say what gap the crates fill ([#11](https://github.com/BenjaminLucier/cf-rs/pull/11))
+- *(cf-images)* document API quirks and unverified assumptions ([#10](https://github.com/BenjaminLucier/cf-rs/pull/10))
+- *(cf-images)* prefix example names ([#7](https://github.com/BenjaminLucier/cf-rs/pull/7))
+- fix live test PNG and cleanup deadlock ([#6](https://github.com/BenjaminLucier/cf-rs/pull/6))
+- add CI and license badges ([#2](https://github.com/BenjaminLucier/cf-rs/pull/2))
+
 ## [0.1.0] - 2026-10-21
 
 ### Added
