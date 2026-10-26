@@ -135,7 +135,7 @@ See [`examples/`](examples):
 
 ## MSRV
 
-Rust 1.87. Raising it is a minor-version change.
+Rust 1.87. The MSRV may be raised in a minor or patch release, and any raise is noted in the changelog.
 
 ## License
 
