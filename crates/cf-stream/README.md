@@ -2,7 +2,7 @@
 
 [![crates.io](https://img.shields.io/crates/v/cf-stream.svg)](https://crates.io/crates/cf-stream)
 [![docs.rs](https://img.shields.io/docsrs/cf-stream)](https://docs.rs/cf-stream)
-![MSRV](https://img.shields.io/badge/MSRV-1.85-blue)
+![MSRV](https://img.shields.io/badge/MSRV-1.87-blue)
 [![CI](https://github.com/BenjaminLucier/cf-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/BenjaminLucier/cf-rs/actions/workflows/ci.yml)
 [![License](https://img.shields.io/crates/l/cf-stream.svg)](#license)
 
@@ -135,7 +135,7 @@ See [`examples/`](examples):
 
 ## MSRV
 
-Rust 1.85. Raising it is a minor-version change.
+Rust 1.87. The MSRV may be raised in a minor or patch release, and any raise is noted in the changelog.
 
 ## License
 

@@ -24,7 +24,7 @@ cargo hack check --workspace --feature-powerset   # needs cargo-hack
 cargo deny check                                  # needs cargo-deny
 ```
 
-The minimum supported Rust version is 1.85; don't raise it without discussion.
+The minimum supported Rust version is 1.87; don't raise it without discussion.
 
 ## Tests
 

@@ -5,7 +5,7 @@ members = ["crates/*"]
 [workspace.package]
 edition = "2024"
 license = "MIT OR Apache-2.0"
-rust-version = "1.85"
+rust-version = "1.87"
 repository = "https://github.com/BenjaminLucier/cf-rs"
 authors = ["Benjamin Lucier <benjaminlucier@gmail.com>"]
 
