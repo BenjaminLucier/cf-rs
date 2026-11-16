@@ -199,3 +199,16 @@ jobs:
         with:
           persist-credentials: false
       - uses: zizmorcore/zizmor-action@85b2b9fb8e3325e7a23d7d0a9d7ba5ae0f999e3e # v0.7.1
+
+  # The only check the branch ruleset requires, so jobs can be added or
+  # renamed without changing repository settings.
+  ci:
+    name: CI
+    if: always()
+    needs: [fmt, clippy, test, features, msrv, docs, deny, semver, package, zizmor]
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Fail if any job failed or was cancelled
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
