@@ -14,7 +14,7 @@ permissions: {}
 
 jobs:
   # Opens or updates a "release" PR with version bumps and changelog entries.
-  # Uses RELEASE_PLZ_TOKEN (a fine-grained PAT or GitHub App token) instead of
+  # Uses RELEASE_TOKEN (a fine-grained PAT or GitHub App token) instead of
   # GITHUB_TOKEN so that CI runs on the PR it opens.
   release-pr:
     name: Release PR
@@ -38,7 +38,7 @@ jobs:
         with:
           command: release-pr
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
   # Publishes crates whose version isn't on crates.io yet, tags them
   # (`{package}-v{version}`) and creates GitHub releases. Uses crates.io
