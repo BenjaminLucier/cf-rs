@@ -1,4 +1,10 @@
-name: release-plz
+name: Release
+
+# release-plz on every push to main (see CONTRIBUTING.md): `release-pr` opens
+# or updates the release PR, and merging it lets `release` publish the crates
+# whose version isn't on crates.io yet, tag them and create GitHub releases.
+# Each crate's trusted publisher on crates.io names this file and the
+# `release` environment, which only deploys from main.
 
 on:
   push:
@@ -8,10 +14,10 @@ permissions: {}
 
 jobs:
   # Opens or updates a "release" PR with version bumps and changelog entries.
-  # Uses RELEASE_PLZ_TOKEN (a fine-grained PAT or GitHub App token) instead of
+  # Uses RELEASE_TOKEN (a fine-grained PAT or GitHub App token) instead of
   # GITHUB_TOKEN so that CI runs on the PR it opens.
   release-pr:
-    name: release PR
+    name: Release PR
     runs-on: ubuntu-latest
     if: github.repository_owner == 'BenjaminLucier'
     permissions:
@@ -32,13 +38,13 @@ jobs:
         with:
           command: release-pr
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
   # Publishes crates whose version isn't on crates.io yet, tags them
   # (`{package}-v{version}`) and creates GitHub releases. Uses crates.io
   # trusted publishing: no long-lived registry token is stored.
   release:
-    name: release
+    name: Release
     runs-on: ubuntu-latest
     if: github.repository_owner == 'BenjaminLucier'
     environment: release
